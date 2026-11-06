@@ -1,0 +1,10 @@
+{
+ "version": "1.7",
+ "notes": "v1.6-1.7: scheduled scans + report + Raise to floor + self-updater; search looks across all items",
+ "files": {
+  "repricer.py": {
+   "sha256": "0d03f83a82e49604fe3e33606aac438d25c235974e99aae9009fc700eeb8dd18",
+   "bytes": 74138
+  }
+ }
+}
