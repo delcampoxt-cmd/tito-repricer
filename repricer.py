@@ -24,7 +24,7 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 
-VERSION = "1.9"
+VERSION = "1.10"
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.environ.get("TR_DATA_DIR") or os.path.expanduser("~/.tito-repricer")
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -1051,7 +1051,7 @@ dialog::backdrop{background:rgba(20,22,20,.35)}
  <button class="primary" id="scanBtn">Scan now</button>
  <div class="prog" id="prog"><span id="progTxt"></span><div class="barbg"><div class="barfill" id="progFill"></div></div></div>
  <span class="sp"></span>
- <input type="text" id="search" placeholder="Search SKU / title / ASIN" style="width:230px">
+ <span style="position:relative;display:inline-flex;align-items:center"><input type="text" id="search" placeholder="Search SKU / title / ASIN" style="width:230px;padding-right:30px"><button id="searchClr" type="button" title="Clear search (Esc)" style="position:absolute;right:4px;border:none;background:#e9ebe7;border-radius:50%;width:22px;height:22px;padding:0;font:700 12px -apple-system;color:#6b7078;display:none">✕</button></span>
 </div>
 <div class="bar" id="chips">
  <span class="chip on" data-k="changes">Needs change</span>
@@ -1221,8 +1221,11 @@ function render(){
 function updApply(){const n=sel.size;$("applyBtn").textContent=(dry?"Preview apply":"Apply selected")+` (${n})`;$("applyBtn").disabled=!n;
  const vis=visible();$("selAll").checked=n>0&&vis.every(x=>sel.has(x.sku)||x.proposed==null&&x.edited==null);}
 $("selAll").onchange=()=>{const on=$("selAll").checked;visible().forEach(x=>{if(x.proposed!=null||x.edited!=null){on?sel.add(x.sku):sel.delete(x.sku);}});render();};
-document.querySelectorAll("#chips .chip").forEach(c=>c.onclick=()=>{document.querySelectorAll("#chips .chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");filter=c.dataset.k;render();});
-$("search").oninput=()=>{search=$("search").value.trim();render();};
+document.querySelectorAll("#chips .chip").forEach(c=>c.onclick=()=>{document.querySelectorAll("#chips .chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");filter=c.dataset.k;search="";$("search").value="";$("searchClr").style.display="none";render();});
+function clearSearch(){search="";$("search").value="";$("searchClr").style.display="none";render();}
+$("search").oninput=()=>{search=$("search").value.trim();$("searchClr").style.display=search?"":"none";render();};
+$("search").addEventListener("keydown",e=>{if(e.key==="Escape")clearSearch();});
+$("searchClr").onclick=clearSearch;
 async function loadState(){const s=await (await fetch("/api/state")).json();
  items=s.items||[];dry=!!s.dry_run;
  $("mode").textContent=dry?"DRY RUN":"LIVE — changes go to Amazon";$("mode").className="pill "+(dry?"dry":"livemode");
@@ -1278,7 +1281,7 @@ async function applyOne(sku,btn){
   if(res.ok){btn.textContent=r.dry_run?"DRY ✓":"✓";btn.classList.add("done");
    if(!r.dry_run){x.price=price;x.proposed=null;x.edited=null;x.why="updated just now";}
    else{x.why="dry run: logged, nothing sent";}
-   sel.delete(sku);setTimeout(()=>{render();},900);loadHist();}
+   sel.delete(sku);setTimeout(()=>{if(search)clearSearch();else render();},900);loadHist();}
   else{btn.textContent=was;btn.disabled=false;msg(sku+": "+(res.status||r.error||"failed"),false);}
  }catch(e){btn.textContent=was;btn.disabled=false;msg("Update failed: "+e,false);}}
 $("applyBtn").onclick=async()=>{

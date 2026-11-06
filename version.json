@@ -1,10 +1,10 @@
 {
- "version": "1.9",
- "notes": "v1.9: one-click match links under Buy Box / FBA low / Floor - set the price and update in one click",
+ "version": "1.10",
+ "notes": "v1.10: search self-clears after match/update, X button in the search box, filter chips clear the search",
  "files": {
   "repricer.py": {
-   "sha256": "4e4a5ce5655875005a2ffb6dd600b714e96412edf1a830e577432d6bafc1b09d",
-   "bytes": 75270
+   "sha256": "c2aa94d85dbae14f0fc52f2534a3de8ef8f46f354d8320e719b43cd6a05187ed",
+   "bytes": 75977
   }
  }
 }
