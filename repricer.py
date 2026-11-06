@@ -24,7 +24,7 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 
-VERSION = "1.8"
+VERSION = "1.9"
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.environ.get("TR_DATA_DIR") or os.path.expanduser("~/.tito-repricer")
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -1015,6 +1015,8 @@ tr:hover td{background:#fafbf8}
 .f.grey{background:#eef0ec;color:var(--mute)}.f.green{background:#e2efe7;color:var(--green)}
 td input.pp{width:84px;text-align:right;font-variant-numeric:tabular-nums;padding:5px 7px}
 td input.pp.chg{border-color:var(--green);background:#f1f8f4;font-weight:700}
+a.mlink{display:inline-block;font:700 11px -apple-system;color:var(--green);cursor:pointer;border-bottom:1px dotted var(--green);margin-top:2px}
+a.mlink:hover{color:#0a5a3d}
 button.up1{font:700 12px -apple-system;padding:6px 10px;border-radius:8px;border:1px solid var(--green);color:var(--green);background:#fff}
 button.up1:hover{background:#e2efe7}button.up1:disabled{border-color:#cfd2cc;color:#aab0a8;background:#fff}
 button.up1.done{background:var(--green);color:#fff}
@@ -1184,8 +1186,8 @@ function render(){
    <td class="num">${x.qty}</td>
    <td class="num">${money(x.cogs)}<div class="sub">${esc(x.cogs_source)}</div></td>
    <td class="num">${money(x.price)}</td>
-   <td class="num">${money(bb.price)}${bb.who?`<div class="sub">${esc(bb.who)}</div>`:""}${x.lowest_fba&&(!bb.price||Math.abs(x.lowest_fba-bb.price)>0.004)?`<div class="sub">FBA low ${money(x.lowest_fba)}</div>`:""}</td>
-   <td class="num">${money(x.floor)}</td>
+   <td class="num">${money(bb.price)}${bb.who?`<div class="sub">${esc(bb.who)}</div>`:""}${bb.price&&bb.who!=="You"?`<div><a class="mlink" data-k="bb" data-sku="${esc(x.sku)}">match</a></div>`:""}${x.lowest_fba&&(!bb.price||Math.abs(x.lowest_fba-bb.price)>0.004)?`<div class="sub">FBA low ${money(x.lowest_fba)}${x.lowest_fba>0?` <a class="mlink" data-k="fba" data-sku="${esc(x.sku)}">match</a>`:""}</div>`:""}</td>
+   <td class="num">${money(x.floor)}${x.floor?`<div><a class="mlink" data-k="floor" data-sku="${esc(x.sku)}">match</a></div>`:""}</td>
    <td class="num"><input class="pp ${(x.edited!=null||x.proposed!=null)?"chg":""}" data-sku="${esc(x.sku)}" type="number" step="0.01" value="${pv}"></td>
    <td><button class="up1" data-sku="${esc(x.sku)}" ${(x.edited!=null||x.proposed!=null)?"":"disabled"}>Update</button></td>
    <td class="num"${(x.proposed==null&&x.edited==null?x.margin_now:x.margin_at_proposed)<0?' style="color:#a01f12;font-weight:700"':""}>${(()=>{const m=(x.proposed==null&&x.edited==null)?x.margin_now:x.margin_at_proposed;return m==null?"—":money(m);})()}</td>
@@ -1206,6 +1208,15 @@ function render(){
   p.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();commit();
    const row=p.closest("tr");const b=row&&row.querySelector(".up1");if(b){b.disabled=false;b.focus();}}});});
  tb.querySelectorAll(".up1").forEach(b=>b.onclick=()=>applyOne(b.dataset.sku,b));
+ tb.querySelectorAll(".mlink").forEach(a=>a.onclick=()=>{
+  const x=items.find(i=>i.sku===a.dataset.sku);if(!x)return;
+  const v=a.dataset.k==="bb"?((x.buybox||{}).price):(a.dataset.k==="fba"?x.lowest_fba:x.floor);
+  if(!(v>0))return;
+  if(x.price!=null&&Math.abs(v-x.price)<0.005){msg(x.sku+" is already at that price.",true);return;}
+  x.edited=Math.round(v*100)/100;
+  const row=a.closest("tr");const btn=row&&row.querySelector(".up1");
+  const inp=row&&row.querySelector(".pp");if(inp){inp.value=x.edited.toFixed(2);inp.classList.add("chg");}
+  if(btn){btn.disabled=false;applyOne(x.sku,btn);}});
  updApply();}
 function updApply(){const n=sel.size;$("applyBtn").textContent=(dry?"Preview apply":"Apply selected")+` (${n})`;$("applyBtn").disabled=!n;
  const vis=visible();$("selAll").checked=n>0&&vis.every(x=>sel.has(x.sku)||x.proposed==null&&x.edited==null);}

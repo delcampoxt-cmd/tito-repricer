@@ -1,10 +1,10 @@
 {
- "version": "1.8",
- "notes": "v1.8: Update button activates however you commit a price (arrows, click away, or Enter)",
+ "version": "1.9",
+ "notes": "v1.9: one-click match links under Buy Box / FBA low / Floor - set the price and update in one click",
  "files": {
   "repricer.py": {
-   "sha256": "dd41f844227aefe2bb1dabb40b4ca2ad316e0ea20ec9aa8a68b732049ab2b5fe",
-   "bytes": 74207
+   "sha256": "4e4a5ce5655875005a2ffb6dd600b714e96412edf1a830e577432d6bafc1b09d",
+   "bytes": 75270
   }
  }
 }
