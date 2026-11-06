@@ -1,10 +1,10 @@
 {
- "version": "1.7",
- "notes": "v1.6-1.7: scheduled scans + report + Raise to floor + self-updater; search looks across all items",
+ "version": "1.8",
+ "notes": "v1.8: Update button activates however you commit a price (arrows, click away, or Enter)",
  "files": {
   "repricer.py": {
-   "sha256": "0d03f83a82e49604fe3e33606aac438d25c235974e99aae9009fc700eeb8dd18",
-   "bytes": 74138
+   "sha256": "dd41f844227aefe2bb1dabb40b4ca2ad316e0ea20ec9aa8a68b732049ab2b5fe",
+   "bytes": 74207
   }
  }
 }

@@ -24,7 +24,7 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 
-VERSION = "1.7"
+VERSION = "1.8"
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.environ.get("TR_DATA_DIR") or os.path.expanduser("~/.tito-repricer")
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -1200,7 +1200,8 @@ function render(){
   const commit=()=>{const x=items.find(i=>i.sku===p.dataset.sku);if(!x)return;
    const v=parseFloat(p.value);
    if(v>0&&(x.price==null||Math.abs(v-x.price)>0.004||x.proposed!=null)){x.edited=v;sel.add(x.sku);p.classList.add("chg");
-    const row=p.closest("tr");const cb=row&&row.querySelector(".rc");if(cb)cb.checked=true;updApply();}};
+    const row=p.closest("tr");const cb=row&&row.querySelector(".rc");if(cb)cb.checked=true;
+    const ub=row&&row.querySelector(".up1");if(ub)ub.disabled=false;updApply();}};
   p.addEventListener("change",commit);
   p.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();commit();
    const row=p.closest("tr");const b=row&&row.querySelector(".up1");if(b){b.disabled=false;b.focus();}}});});
