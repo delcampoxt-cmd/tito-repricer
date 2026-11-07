@@ -1,10 +1,10 @@
 {
- "version": "1.10",
- "notes": "v1.10: search self-clears after match/update, X button in the search box, filter chips clear the search",
+ "version": "1.11",
+ "notes": "v1.11: product title and ASIN are links to the live Amazon listing (open in your browser)",
  "files": {
   "repricer.py": {
-   "sha256": "c2aa94d85dbae14f0fc52f2534a3de8ef8f46f354d8320e719b43cd6a05187ed",
-   "bytes": 75977
+   "sha256": "ce85b96f1e3d8528a17391755b33024360886f703f477c98d52c0c2d766d706a",
+   "bytes": 76617
   }
  }
 }

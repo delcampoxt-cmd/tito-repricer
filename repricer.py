@@ -24,7 +24,7 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 
-VERSION = "1.10"
+VERSION = "1.11"
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.environ.get("TR_DATA_DIR") or os.path.expanduser("~/.tito-repricer")
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -1015,6 +1015,10 @@ tr:hover td{background:#fafbf8}
 .f.grey{background:#eef0ec;color:var(--mute)}.f.green{background:#e2efe7;color:var(--green)}
 td input.pp{width:84px;text-align:right;font-variant-numeric:tabular-nums;padding:5px 7px}
 td input.pp.chg{border-color:var(--green);background:#f1f8f4;font-weight:700}
+a.plink{color:inherit;text-decoration:none}
+a.plink:hover{color:var(--green);text-decoration:underline}
+a.alink{color:var(--mute);text-decoration:none;border-bottom:1px dotted #cfd2cc}
+a.alink:hover{color:var(--green);border-bottom-color:var(--green)}
 a.mlink{display:inline-block;font:700 11px -apple-system;color:var(--green);cursor:pointer;border-bottom:1px dotted var(--green);margin-top:2px}
 a.mlink:hover{color:#0a5a3d}
 button.up1{font:700 12px -apple-system;padding:6px 10px;border-radius:8px;border:1px solid var(--green);color:var(--green);background:#fff}
@@ -1181,8 +1185,8 @@ function render(){
  rows.forEach(x=>{const tr=document.createElement("tr");const bb=x.buybox||{};
   const pv=x.edited!=null?Number(x.edited).toFixed(2):(x.proposed!=null?x.proposed.toFixed(2):(x.price!=null?x.price.toFixed(2):""));
   tr.innerHTML=`<td><input type="checkbox" class="rc" data-sku="${esc(x.sku)}" ${sel.has(x.sku)?"checked":""} ${x.proposed==null&&!sel.has(x.sku)?"":""}></td>
-   <td style="font:600 12px ui-monospace,Menlo">${esc(x.sku)}<div class="sub">${esc(x.asin)}</div></td>
-   <td class="t" title="${esc(x.title)}">${esc(x.title)}</td>
+   <td style="font:600 12px ui-monospace,Menlo">${esc(x.sku)}<div class="sub">${x.asin?`<a class="alink" href="https://www.amazon.com/dp/${esc(x.asin)}" target="_blank" rel="noopener" title="Open on Amazon">${esc(x.asin)}</a>`:""}</div></td>
+   <td class="t" title="${esc(x.title)}">${x.asin?`<a class="plink" href="https://www.amazon.com/dp/${esc(x.asin)}" target="_blank" rel="noopener">${esc(x.title)}</a>`:esc(x.title)}</td>
    <td class="num">${x.qty}</td>
    <td class="num">${money(x.cogs)}<div class="sub">${esc(x.cogs_source)}</div></td>
    <td class="num">${money(x.price)}</td>
@@ -1246,7 +1250,7 @@ $("rptToggle").onclick=()=>{const r=$("rptRows");const on=r.style.display==="non
 async function loadHist(){const h=await (await fetch("/api/history")).json();const tb=$("hist");
  if(!(h.rows||[]).length){tb.innerHTML='<tr><td colspan="8" class="small" style="padding:16px">No changes yet.</td></tr>';return;}
  tb.innerHTML=h.rows.map((r,i)=>`<tr><td class="sub">${esc(r.time||"")}${r.dry_run?' <span class="f grey">DRY</span>':""}</td>
-  <td style="font:600 12px ui-monospace,Menlo">${esc(r.sku)}</td><td class="t" title="${esc(r.title)}">${esc(r.title)}</td>
+  <td style="font:600 12px ui-monospace,Menlo">${esc(r.sku)}</td><td class="t" title="${esc(r.title)}">${r.asin?`<a class="plink" href="https://www.amazon.com/dp/${esc(r.asin)}" target="_blank" rel="noopener">${esc(r.title)}</a>`:esc(r.title)}</td>
   <td class="num">${money(r.old)}</td><td class="num"><b>${money(r.new)}</b></td>
   <td class="sub">${esc(r.status||"")}</td>
   <td>${r.outcome==="won"?'<span class="f green">WON / HELD</span>':r.outcome==="lost"?'<span class="f red">LOST</span>':'<span class="sub">—</span>'}</td>
