@@ -24,7 +24,7 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 
-VERSION = "1.11"
+VERSION = "1.12"
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.environ.get("TR_DATA_DIR") or os.path.expanduser("~/.tito-repricer")
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -520,6 +520,13 @@ def run_scan(scheduled=False):
             x["amazon_selling"] = o.get("amazon_selling", False)
             x["offers"] = o.get("offers", 0)
             x["lowest_fba"] = o.get("lowest_fba")
+            # A cost parsed from the SKU is only trusted when the market makes it plausible:
+            # if it exceeds 2x the item's own price / Buy Box, it is a lot number, not a cost.
+            if x["cogs_source"] == "sku":
+                refp = max([v for v in (x.get("price"), (x.get("buybox") or {}).get("price")) if v] or [0])
+                if refp and x["cogs"] > 2 * refp:
+                    x["cogs"] = float(rules.get("default_cogs", 1.85))
+                    x["cogs_source"] = "rejected"
         SCAN.update(step="Loading fee estimates", done=0, total=len(items))
         fee_in = [(x["sku"], x["asin"], (x.get("buybox") or {}).get("price") or x.get("price")) for x in items]
         fees = batch_fees(fee_in, progress=lambda d, t: SCAN.update(done=d, total=t))
@@ -1153,7 +1160,7 @@ function visible(){const q=search.toLowerCase();
   if(filter==="losing")return x.margin_now!=null&&x.margin_now<-0.004;
   if(filter==="amazon")return fl.includes("bb-amazon")||x.amazon_selling;
   if(filter==="yours")return fl.includes("bb-yours");
-  if(filter==="nocost")return x.cogs_source==="default";
+  if(filter==="nocost")return x.cogs_source==="default"||x.cogs_source==="rejected";
   return true;});
  if(filter==="losing")r=r.slice().sort((a,b)=>(a.margin_now??0)-(b.margin_now??0));
  return r;}
@@ -1165,7 +1172,7 @@ function chipCounts(){
   losing:items.filter(x=>x.margin_now!=null&&x.margin_now<-0.004).length,
   amazon:items.filter(x=>fl(x).includes("bb-amazon")||x.amazon_selling).length,
   yours:items.filter(x=>fl(x).includes("bb-yours")).length,
-  nocost:items.filter(x=>x.cogs_source==="default").length,
+  nocost:items.filter(x=>x.cogs_source==="default"||x.cogs_source==="rejected").length,
   all:items.length};
  document.querySelectorAll("#chips .chip").forEach(ch=>{const k=ch.dataset.k;
   ch.textContent=CHIP_LBL[k]+(items.length?` (${c[k]})`:"");});}
@@ -1177,6 +1184,7 @@ function flagHtml(x){const out=[];const fl=x.flags||[];
  if(fl.includes("bb-yours"))out.push('<span class="f green">YOUR BB</span>');
  if(fl.includes("ten-break"))out.push('<span class="f grey">$9.99</span>');
  if(x.cogs_source==="default")out.push('<span class="f amber">DEFAULT COST</span>');
+ if(x.cogs_source==="rejected")out.push('<span class="f red">COST? SKU number ignored</span>');
  return out.join("");}
 function render(){
  chipCounts();

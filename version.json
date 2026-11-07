@@ -1,10 +1,10 @@
 {
- "version": "1.11",
- "notes": "v1.11: product title and ASIN are links to the live Amazon listing (open in your browser)",
+ "version": "1.12",
+ "notes": "v1.12: SKU-derived costs sanity-checked against the market; implausible ones (lot numbers like 308-888-03) fall back to default + COST? flag",
  "files": {
   "repricer.py": {
-   "sha256": "ce85b96f1e3d8528a17391755b33024360886f703f477c98d52c0c2d766d706a",
-   "bytes": 76617
+   "sha256": "1411380d80cdcaa1e69ce276d467c7f2e5144c0eb76521f9b8c96269050fbf2e",
+   "bytes": 77278
   }
  }
 }
